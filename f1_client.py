@@ -93,22 +93,26 @@ class RaceClient:
                 timeout=10,
             )
             data = resp.json()
-            results = (
+            races = (
                 data.get("MRData", {})
                     .get("RaceTable", {})
                     .get("Races", [])
             )
-            if results:
-                raw = results[0].get("Results", [])[:5]
-                return [
-                    {
-                        "id": r["Driver"]["code"],  # 3-letter code (VER, NOR, …)
-                        "points": int(r["points"]),
-                    }
-                    for r in raw
-                ]
+            if not races:
+                # Race hasn't happened yet — no classification available
+                return []
+            raw = races[0].get("Results", [])[:5]
+            if not raw:
+                return []
+            return [
+                {
+                    "id": r["Driver"]["code"],  # 3-letter code (VER, NOR, …)
+                    "points": int(r["points"]),
+                }
+                for r in raw
+            ]
         except Exception as e:
             print(f"[RaceClient] Results API error (round {round_num}): {e}")
 
-        # Fallback: generic top-5 placeholder
+        # API unreachable — use fallback
         return list(_FALLBACK_RESULTS)

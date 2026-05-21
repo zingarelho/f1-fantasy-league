@@ -20,7 +20,9 @@ def refresh_all_data():
     schedule = client.get_full_2026_calendar()
     results_map = {}
     for race in schedule:
-        results_map[race["round"]] = client.get_results(race["round"])
+        results = client.get_results(race["round"])
+        if results:
+            results_map[race["round"]] = results
     dm.save_race_data(schedule, results_map)
     st.success("Global data refresh complete!")
 
@@ -28,8 +30,11 @@ def refresh_all_data():
 def refresh_single_race(round_num):
     try:
         results = client.get_results(round_num)
-        dm.update_single_race_result(round_num, results)
-        st.success(f"Updated results for Round {round_num}!")
+        if results:
+            dm.update_single_race_result(round_num, results)
+            st.success(f"Updated results for Round {round_num}!")
+        else:
+            st.info(f"Round {round_num} hasn't happened yet — no classification available.")
     except Exception as e:
         st.error(f"Failed to fetch results for Round {round_num}: {e}")
 
