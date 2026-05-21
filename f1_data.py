@@ -4,9 +4,12 @@ import os
 class DataManager:
     def __init__(self, data_folder="data"):
         self.data_folder = data_folder
-        # Create folder if it doesn't exist immediately upon init
+        # Ensure folder exists
         if not os.path.exists(self.data_folder):
-            os.makedirs(self.data_folder, exist_ok=True)
+            try:
+                os.makedirs(self.data_folder, exist_ok=True)
+            except Exception as e:
+                print(f"DataManager Folder Error: {e}")
             
         self.predictions_file = os.path.join(self.data_folder, "predictions.json")
         self.users_file = os.path.join(self.data_folder, "users.json")
@@ -14,14 +17,20 @@ class DataManager:
         self.results_file = os.path.join(self.data_folder, "results.json")
 
     def _write_json(self, path, data):
-        with open(path, "w") as f:
-            json.dump(data, f, indent=4)
+        try:
+            with open(path, "w") as f:
+                json.dump(data, f, indent=4)
+        except Exception as e:
+            print(f"Write Error {path}: {e}")
 
     def _read_json(self, path):
         if not os.path.exists(path): return {}
-        with open(path, "r") as f:
-            try: return json.load(f)
-            except: return {}
+        try:
+            with open(path, "r") as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"Read Error {path}: {e}")
+            return {}
 
     def save_prediction(self, user, race, prediction, is_late):
         preds = self._read_json(self.predictions_file)
