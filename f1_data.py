@@ -4,10 +4,14 @@ import os
 class DataManager:
     def __init__(self, data_folder="data"):
         self.data_folder = data_folder
-        self.predictions_file = os.path.join(data_folder, "predictions.json")
-        self.users_file = os.path.join(data_folder, "users.json")
-        self.calendar_file = os.path.join(data_folder, "calendar.json")
-        self.results_file = os.path.join(data_folder, "results.json")
+        # Create folder if it doesn't exist immediately upon init
+        if not os.path.exists(self.data_folder):
+            os.makedirs(self.data_folder, exist_ok=True)
+            
+        self.predictions_file = os.path.join(self.data_folder, "predictions.json")
+        self.users_file = os.path.join(self.data_folder, "users.json")
+        self.calendar_file = os.path.join(self.data_folder, "calendar.json")
+        self.results_file = os.path.join(self.data_folder, "results.json")
 
     def _write_json(self, path, data):
         with open(path, "w") as f:
