@@ -20,7 +20,8 @@ class DataManager:
             print(f"Write Error {path}: {e}")
 
     def _read_json(self, path):
-        if not os.path.exists(path): return {}
+        if not os.path.exists(path): 
+            return {}
         try:
             with open(path, "r") as f:
                 return json.load(f)
@@ -30,15 +31,19 @@ class DataManager:
 
     def save_prediction(self, user, race, prediction, is_late):
         preds = self._read_json(self.predictions_file)
-        if not isinstance(preds, dict): preds = {}
-        if race not in preds: preds[race] = {}
-        if not isinstance(preds[race], dict): preds[race] = {}
+        if not isinstance(preds, dict): 
+            preds = {}
+        if race not in preds: 
+            preds[race] = {}
+        if not isinstance(preds[race], dict): 
+            preds[race] = {}
         preds[race][user] = {"picks": prediction, "is_late": is_late}
         self._write_json(self.predictions_file, preds)
 
     def remove_prediction(self, user, race):
         preds = self._read_json(self.predictions_file)
-        if not isinstance(preds, dict): return
+        if not isinstance(preds, dict): 
+            return
         if race in preds and isinstance(preds[race], dict) and user in preds[race]:
             del preds[race][user]
             self._write_json(self.predictions_file, preds)
@@ -50,24 +55,29 @@ class DataManager:
             self._write_json(self.users_file, sorted(users))
 
     def remove_user(self, user):
-        # 1. Update User List
+        # Step 1: Remove from user list
         users = self.get_users()
-        if user not in users:
+        if user in users:
+            users.remove(user)
+            self._write_json(self.users_file, users)
+        
+        # Step 2: Remove from predictions by rebuilding the dict without the user
+        preds = self._read_json(self.predictions_file)
+        if not isinstance(preds, dict):
             return
         
-        users.remove(user)
-        self._write_json(self.users_file, users)
+        new_preds = {}
+        for race, user_preds in preds.items():
+            # Only copy if it's a dictionary
+            if isinstance(user_preds, dict):
+                # Create a copy without the target user
+                filtered_preds = {u: p for u, p in user_preds.items() if u != user}
+                # Only add race if there are predictions left
+                if filtered_preds:
+                    new_preds[race] = filtered_preds
+            # If it's not a dict, we skip this race entirely (safer than trying to fix it)
         
-        # 2. Update Predictions (Clean room approach)
-        preds = self._read_json(self.predictions_file)
-        if isinstance(preds, dict):
-            changed = False
-            for race, user_preds in preds.items():
-                if isinstance(user_preds, dict) and user in user_preds:
-                    del user_preds[user]
-                    changed = True
-            if changed:
-                self._write_json(self.predictions_file, preds)
+        self._write_json(self.predictions_file, new_preds)
 
     def save_race_data(self, schedule, results_map):
         self._write_json(self.calendar_file, schedule)
@@ -75,7 +85,8 @@ class DataManager:
 
     def update_single_race_result(self, round_num, results):
         res_map = self._read_json(self.results_file)
-        if not isinstance(res_map, dict): res_map = {}
+        if not isinstance(res_map, dict): 
+            res_map = {}
         res_map[str(round_num)] = results
         self._write_json(self.results_file, res_map)
 
