@@ -9,8 +9,8 @@ class RaceClient:
             headers = {"User-Agent": "Mozilla/5.0"}
             response = requests.get(f"{self.BASE_URL}/2026.json", headers=headers, timeout=10)
             data = response.json()
-            if 'MRos' in data and data['MRos']:
-                races_list = data['MRos'][0].get('Races', [])
+            if 'MRData' in data and data['MRData']:
+                races_list = data['MRData'][0].get('Races', [])
                 if races_list:
                     return [{"round": r['round'], "name": r['raceName'], "date": r['date'], "status": r.get('status', 'Scheduled')} for r in races_list]
         except Exception as e:
@@ -47,9 +47,9 @@ class RaceClient:
             headers = {"User-Agent": "Mozilla/5.0"}
             response = requests.get(f"{self.BASE_URL}/{season}/results.json?round={round_num}", headers=headers, timeout=10)
             data = response.json()
-            if 'MRos' in data and data['MRos']:
-                race_results = data['MRos'][0]['Race']
+            if 'MRData' in data and data['MRData']:
+                race_results = data['MRData'][0]['Race']
                 return [driver_info['driverId'].upper() for driver_info in race_results[:5]]
             return ["VER", "NOR", "LEC", "HAM", "PIA"]
-        except:
+        except Exception as e:
             return ["VER", "NOR", "LEC", "HAM", "PIA"]

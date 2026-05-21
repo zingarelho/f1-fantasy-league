@@ -25,6 +25,9 @@ class DataManager:
         try:
             with open(path, "r") as f:
                 return json.load(f)
+        except json.JSONDecodeError as e:
+            print(f"JSON Decode Error {path}: {e}")
+            return {}
         except Exception as e:
             print(f"Read Error {path}: {e}")
             return {}
@@ -101,7 +104,7 @@ class DataManager:
     def get_results_map(self):
         res = self._read_json(self.results_file)
         return res if isinstance(res, dict) else {}
-        
+    
     def get_users(self):
         res = self._read_json(self.users_file)
         return res if isinstance(res, list) else []

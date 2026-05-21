@@ -1,4 +1,3 @@
-
 class ScoringEngine:
     @staticmethod
     def calculate_points(prediction, official_results_with_points, is_late=False, is_missing=False):
@@ -23,7 +22,7 @@ class ScoringEngine:
                 driver_real_points = official_map.get(driver, 0)
                 
                 # RULE: Right position = Full Points. Wrong position (but in Top 5) = Half Points.
-                if official_results_with_points[pos]['id'] == driver:
+                if pos < len(official_results_with_points) and official_results_with_points[pos]['id'] == driver:
                     total_points += driver_real_points
                 else:
                     total_points += (driver_real_points / 2)
