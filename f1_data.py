@@ -25,6 +25,12 @@ class DataManager:
         preds[race][user] = {"picks": prediction, "is_late": is_late}
         self._write_json(self.predictions_file, preds)
 
+    def remove_prediction(self, user, race):
+        preds = self._read_json(self.predictions_file)
+        if race in preds and user in preds[race]:
+            del preds[race][user]
+            self._write_json(self.predictions_file, preds)
+
     def add_user(self, user):
         users = self.get_users()
         if user not in users:
@@ -36,7 +42,6 @@ class DataManager:
         if user in users:
             users.remove(user)
             self._write_json(self.users_file, users)
-            # Also remove user from predictions
             preds = self._read_json(self.predictions_file)
             for race in preds:
                 if user in preds[race]:
@@ -46,6 +51,11 @@ class DataManager:
     def save_race_data(self, schedule, results_map):
         self._write_json(self.calendar_file, schedule)
         self._write_json(self.results_file, results_map)
+
+    def update_single_race_result(self, round_num, results):
+        res_map = self._read_json(self.results_file)
+        res_map[str(round_num)] = results
+        self._write_json(self.results_file, res_map)
 
     def get_predictions(self):
         return self._read_json(self.predictions_file)
@@ -57,4 +67,5 @@ class DataManager:
         return self._read_json(self.results_file)
         
     def get_users(self):
-        return self._read_json(self.users_file) if isinstance(self._read_json(self.users_file), list) else []
+        res = self._read_json(self.users_file)
+        return res if isinstance(res, list) else []
