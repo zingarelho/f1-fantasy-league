@@ -71,7 +71,6 @@ with tab2:
     if not users:
         st.write("No users registered.")
     else:
-        # Added unique key to prevent DuplicateElementId
         selected_user = st.selectbox("Select User for Performance", users, key="user_perf_select")
         all_predictions = dm.get_predictions()
         results_map = dm.get_results_map()
@@ -110,7 +109,6 @@ with tab3:
         if not users:
             st.warning("Please add users in 'User Management' first.")
         else:
-            # Added unique key to prevent DuplicateElementId
             selected_user = st.selectbox("Select User for Prediction", users, key="user_pred_select")
             selected_race = st.selectbox("Race", [r['name'] for r in current_schedule], key="race_pred_select")
             picks = st.text_input("Top 5 (comma separated, e.g., VER, NOR, HAM, LEC, PER)")
@@ -147,7 +145,6 @@ with tab4:
         st.write("---")
         st.subheader("Update Specific Race Result")
         col1, col2 = st.columns([3, 1])
-        # Added unique key
         race_to_upd = col1.selectbox("Select Race to Update", [r['name'] for r in current_schedule], key="race_update_select")
         if col2.button("Update Result"):
             rd = next(r['round'] for r in current_schedule if r['name'] == race_to_upd)
@@ -167,7 +164,9 @@ with tab5:
     users = dm.get_users()
     for u in users:
         col1, col2 = st.columns([4, 1])
-        col1.write(u)
-        if col2.button(f"Delete", key=f"del_{u}"):
-            dm.remove_user(u)
-            st.rerun()
+        with col1:
+            st.write(u)
+        with col2:
+            if st.button(f"Delete", key=f"del_{u}"):
+                dm.remove_user(u)
+                st.rerun()
