@@ -50,15 +50,23 @@ class DataManager:
             self._write_json(self.users_file, sorted(users))
 
     def remove_user(self, user):
+        # 1. Update User List
         users = self.get_users()
-        if user in users:
-            users.remove(user)
-            self._write_json(self.users_file, users)
-            preds = self._read_json(self.predictions_file)
-            if isinstance(preds, dict):
-                for race in preds:
-                    if isinstance(preds[race], dict) and user in preds[race]:
-                        del preds[race][user]
+        if user not in users:
+            return
+        
+        users.remove(user)
+        self._write_json(self.users_file, users)
+        
+        # 2. Update Predictions (Clean room approach)
+        preds = self._read_json(self.predictions_file)
+        if isinstance(preds, dict):
+            changed = False
+            for race, user_preds in preds.items():
+                if isinstance(user_preds, dict) and user in user_preds:
+                    del user_preds[user]
+                    changed = True
+            if changed:
                 self._write_json(self.predictions_file, preds)
 
     def save_race_data(self, schedule, results_map):
