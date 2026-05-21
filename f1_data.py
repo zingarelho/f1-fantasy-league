@@ -2,14 +2,10 @@ import json
 import os
 
 class DataManager:
-    def __init__(self, data_folder="data"):
-        self.data_folder = data_folder
-        # Ensure folder exists
+    def __init__(self):
+        self.data_folder = "data"
         if not os.path.exists(self.data_folder):
-            try:
-                os.makedirs(self.data_folder, exist_ok=True)
-            except Exception as e:
-                print(f"DataManager Folder Error: {e}")
+            os.makedirs(self.data_folder, exist_ok=True)
             
         self.predictions_file = os.path.join(self.data_folder, "predictions.json")
         self.users_file = os.path.join(self.data_folder, "users.json")

@@ -7,7 +7,7 @@ st.set_page_config(page_title="F1 Fantasy League", layout="wide")
 st.title("🏎️ F1 Fantasy League")
 
 client = RaceClient()
-dm = DataManager(data_folder="data")
+dm = DataManager()
 engine = ScoringEngine()
 
 # DATA PERSISTENCE LOGIC
@@ -86,7 +86,6 @@ with tab2:
             if pred:
                 pts = engine.calculate_points(pred['picks'], res, is_late=pred.get('is_late', False))
             elif any(all_predictions.get(prev['name'], {}).get(selected_user) for prev in current_schedule if prev['name'] != race_name):
-                # Calculate carry-over points for table view
                 last_picks = None
                 for prev_race in reversed(current_schedule):
                     if prev_race['name'] == race_name: continue
@@ -148,7 +147,6 @@ with tab4:
         col1, col2 = st.columns([3, 1])
         race_to_upd = col1.selectbox("Select Race to Update", [r['name'] for r in current_schedule])
         if col2.button("Update Result"):
-            # Find round number
             rd = next(r['round'] for r in current_schedule if r['name'] == race_to_upd)
             refresh_single_race(rd)
             st.rerun()
