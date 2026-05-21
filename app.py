@@ -71,7 +71,8 @@ with tab2:
     if not users:
         st.write("No users registered.")
     else:
-        selected_user = st.selectbox("Select User", users)
+        # Added unique key to prevent DuplicateElementId
+        selected_user = st.selectbox("Select User for Performance", users, key="user_perf_select")
         all_predictions = dm.get_predictions()
         results_map = dm.get_results_map()
         
@@ -109,8 +110,9 @@ with tab3:
         if not users:
             st.warning("Please add users in 'User Management' first.")
         else:
-            selected_user = st.selectbox("Select User", users)
-            selected_race = st.selectbox("Race", [r['name'] for r in current_schedule])
+            # Added unique key to prevent DuplicateElementId
+            selected_user = st.selectbox("Select User for Prediction", users, key="user_pred_select")
+            selected_race = st.selectbox("Race", [r['name'] for r in current_schedule], key="race_pred_select")
             picks = st.text_input("Top 5 (comma separated, e.g., VER, NOR, HAM, LEC, PER)")
             is_late = st.checkbox("Submitted after qualifying?")
             if st.button("Save Prediction"):
@@ -145,7 +147,8 @@ with tab4:
         st.write("---")
         st.subheader("Update Specific Race Result")
         col1, col2 = st.columns([3, 1])
-        race_to_upd = col1.selectbox("Select Race to Update", [r['name'] for r in current_schedule])
+        # Added unique key
+        race_to_upd = col1.selectbox("Select Race to Update", [r['name'] for r in current_schedule], key="race_update_select")
         if col2.button("Update Result"):
             rd = next(r['round'] for r in current_schedule if r['name'] == race_to_upd)
             refresh_single_race(rd)
