@@ -30,13 +30,16 @@ class DataManager:
 
     def save_prediction(self, user, race, prediction, is_late):
         preds = self._read_json(self.predictions_file)
+        if not isinstance(preds, dict): preds = {}
         if race not in preds: preds[race] = {}
+        if not isinstance(preds[race], dict): preds[race] = {}
         preds[race][user] = {"picks": prediction, "is_late": is_late}
         self._write_json(self.predictions_file, preds)
 
     def remove_prediction(self, user, race):
         preds = self._read_json(self.predictions_file)
-        if race in preds and user in preds[race]:
+        if not isinstance(preds, dict): return
+        if race in preds and isinstance(preds[race], dict) and user in preds[race]:
             del preds[race][user]
             self._write_json(self.predictions_file, preds)
 
@@ -52,10 +55,11 @@ class DataManager:
             users.remove(user)
             self._write_json(self.users_file, users)
             preds = self._read_json(self.predictions_file)
-            for race in preds:
-                if user in preds[race]:
-                    del preds[race][user]
-            self._write_json(self.predictions_file, preds)
+            if isinstance(preds, dict):
+                for race in preds:
+                    if isinstance(preds[race], dict) and user in preds[race]:
+                        del preds[race][user]
+                self._write_json(self.predictions_file, preds)
 
     def save_race_data(self, schedule, results_map):
         self._write_json(self.calendar_file, schedule)
@@ -63,17 +67,21 @@ class DataManager:
 
     def update_single_race_result(self, round_num, results):
         res_map = self._read_json(self.results_file)
+        if not isinstance(res_map, dict): res_map = {}
         res_map[str(round_num)] = results
         self._write_json(self.results_file, res_map)
 
     def get_predictions(self):
-        return self._read_json(self.predictions_file)
+        res = self._read_json(self.predictions_file)
+        return res if isinstance(res, dict) else {}
 
     def get_schedule(self):
-        return self._read_json(self.calendar_file)
+        res = self._read_json(self.calendar_file)
+        return res if isinstance(res, list) else []
 
     def get_results_map(self):
-        return self._read_json(self.results_file)
+        res = self._read_json(self.results_file)
+        return res if isinstance(res, dict) else {}
         
     def get_users(self):
         res = self._read_json(self.users_file)
