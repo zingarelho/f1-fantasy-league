@@ -10,10 +10,9 @@ client = RaceClient()
 dm = DataManager()
 engine = ScoringEngine()
 
-# PERSISTENCE SYNC: Update calendar and results if missing
+# PERSISTENCE SYNC
 current_schedule = dm.get_schedule()
 if not current_schedule:
-    st.info("Updating 2026 Calendar...")
     current_schedule = client.get_full_2026_calendar()
     results_map = {}
     for race in current_schedule:
@@ -22,21 +21,23 @@ if not current_schedule:
     dm.save_race_data(current_schedule, results_map)
     current_schedule = dm.get_schedule()
 
-tab1, tab2, tab3 = st.tabs(["Leaderboard", "Input Predictions", "Race Info"])
+tab1, tab2, tab3, tab4 = st.tabs(["Leaderboard", "Input Predictions", "Race Info", "User Management"])
 
 with tab1:
     st.header("Current Standings")
     all_predictions = dm.get_predictions()
     results_map = dm.get_results_map()
+    
     leaderboard = {}
-    all_users = set()
-    for r_data in all_predictions.values():
-        all_users.update(r_data.keys())
+    all_users = dm.get_users() # Use the persistent user list
+    
     for race in current_schedule:
         race_name = race['name']
+        # Force a result lookup if missing but finished
         results = results_map.get(race['round'], [])
         if race['status'] == 'Finished' and not results:
             results = client.get_results(race['round'])
+        
         for user in all_users:
             pred_data = all_predictions.get(race_name, {}).get(user)
             if pred_data:
@@ -56,21 +57,26 @@ with tab1:
     if sorted_leaderboard:
         st.table([{"User": u, "Total Points": p} for u, p in sorted_leaderboard])
     else:
-        st.write("No predictions found yet!")
+        st.write("No results to display yet!")
 
 with tab2:
     st.header("Submit Prediction")
     if current_schedule:
-        selected_race = st.selectbox("Race", [r['name'] for r in current_schedule])
-        user_name = st.text_input("Your Name")
-        picks = st.text_input("Top 5 (comma separated, e.g., VER, NOR, HAM, LEC, PER)")
-        is_late = st.checkbox("Submitted after qualifying?")
-        if st.button("Save Prediction"):
-            if user_name and picks:
-                pick_list = [p.strip().upper() for p in picks.split(",")]
-                dm.save_prediction(user_name, selected_race, pick_list, is_late)
-                st.success(f"Prediction saved for {user_name}!")
-                st.rerun()
+        users = dm.get_users()
+        if not users:
+            st.warning("No users found. Please add users in the 'User Management' tab first.")
+        else:
+            selected_user = st.selectbox("Select User", users)
+            selected_race = st.selectbox("Race", [r['name'] for r in current_schedule])
+            picks = st.text_input("Top 5 (comma separated, e.g., VER, NOR, HAM, LEC, PER)")
+            is_late = st.checkbox("Submitted after qualifying?")
+            
+            if st.button("Save Prediction"):
+                if picks:
+                    pick_list = [p.strip().upper() for p in picks.split(",")]
+                    dm.save_prediction(selected_user, selected_race, pick_list, is_late)
+                    st.success(f"Prediction saved for {selected_user}!")
+                    st.rerun()
 
 with tab3:
     st.header("Schedule & Results")
@@ -78,7 +84,23 @@ with tab3:
         full_info = []
         results_map = dm.get_results_map()
         for race in current_schedule:
-            res = results_map.get(race['round'], "N/A")
-            res_str = ", ".join(res) if isinstance(res, list) else res
-            full_info.append({**race, "Top 5 Results": res_str})
+            # Ensure we actually have the results for the table
+            res = results_map.get(race['round'], [])
+            if race['status'] == 'Finished' and not res:
+                res = client.get_results(race['round'])
+            
+            res_str = ", ".join(res) if res else "N/A"
+            full_info.append({**race, "Top 5 Official Results": res_str})
         st.table(full_info)
+
+with tab4:
+    st.header("User Management")
+    new_user = st.text_input("Add New User")
+    if st.button("Add User"):
+        if new_user:
+            dm.add_user(new_user)
+            st.success(f"User {new_user} added!")
+            st.rerun()
+    
+    st.write("### Registered Users")
+    st.write(dm.get_users())

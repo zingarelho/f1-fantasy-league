@@ -11,8 +11,24 @@ class DataManager:
         if race not in predictions: predictions[race] = {}
         predictions[race][user] = {"picks": prediction, "is_late": is_late}
         data['predictions'] = predictions
+        
+        # Ensure user is in the user list
+        users = data.get('users', [])
+        if user not in users:
+            users.append(user)
+            data['users'] = sorted(users)
+            
         with open(self.file_path, "w") as f:
             json.dump(data, f)
+
+    def add_user(self, user):
+        data = self.load_all()
+        users = data.get('users', [])
+        if user not in users:
+            users.append(user)
+            data['users'] = sorted(users)
+            with open(self.file_path, "w") as f:
+                json.dump(data, f)
 
     def save_race_data(self, schedule, results_map):
         data = self.load_all()
@@ -37,3 +53,6 @@ class DataManager:
 
     def get_results_map(self):
         return self.load_all().get('results', {})
+        
+    def get_users(self):
+        return self.load_all().get('users', [])
