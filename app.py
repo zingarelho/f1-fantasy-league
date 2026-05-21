@@ -4,7 +4,7 @@ from f1_client import RaceClient
 from f1_data import DataManager
 
 st.set_page_config(page_title="F1 Fantasy League", layout="wide")
-st.title("🏎️ F1 Prediction League")
+st.title("🏎️ F1 Fantasy League")
 
 # Initialize clients with caching
 @st.cache_data(ttl=3600) # Cache API data for 1 hour
