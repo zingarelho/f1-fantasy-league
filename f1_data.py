@@ -2,57 +2,59 @@ import json
 import os
 
 class DataManager:
-    def __init__(self, file_path="predictions.json"):
-        self.file_path = file_path
+    def __init__(self, data_folder="data"):
+        self.data_folder = data_folder
+        self.predictions_file = os.path.join(data_folder, "predictions.json")
+        self.users_file = os.path.join(data_folder, "users.json")
+        self.calendar_file = os.path.join(data_folder, "calendar.json")
+        self.results_file = os.path.join(data_folder, "results.json")
+
+    def _write_json(self, path, data):
+        with open(path, "w") as f:
+            json.dump(data, f, indent=4)
+
+    def _read_json(self, path):
+        if not os.path.exists(path): return {}
+        with open(path, "r") as f:
+            try: return json.load(f)
+            except: return {}
 
     def save_prediction(self, user, race, prediction, is_late):
-        data = self.load_all()
-        predictions = data.get('predictions', {})
-        if race not in predictions: predictions[race] = {}
-        predictions[race][user] = {"picks": prediction, "is_late": is_late}
-        data['predictions'] = predictions
-        
-        # Ensure user is in the user list
-        users = data.get('users', [])
-        if user not in users:
-            users.append(user)
-            data['users'] = sorted(users)
-            
-        with open(self.file_path, "w") as f:
-            json.dump(data, f)
+        preds = self._read_json(self.predictions_file)
+        if race not in preds: preds[race] = {}
+        preds[race][user] = {"picks": prediction, "is_late": is_late}
+        self._write_json(self.predictions_file, preds)
 
     def add_user(self, user):
-        data = self.load_all()
-        users = data.get('users', [])
+        users = self.get_users()
         if user not in users:
             users.append(user)
-            data['users'] = sorted(users)
-            with open(self.file_path, "w") as f:
-                json.dump(data, f)
+            self._write_json(self.users_file, sorted(users))
+
+    def remove_user(self, user):
+        users = self.get_users()
+        if user in users:
+            users.remove(user)
+            self._write_json(self.users_file, users)
+            # Also remove user from predictions
+            preds = self._read_json(self.predictions_file)
+            for race in preds:
+                if user in preds[race]:
+                    del preds[race][user]
+            self._write_json(self.predictions_file, preds)
 
     def save_race_data(self, schedule, results_map):
-        data = self.load_all()
-        data['schedule'] = schedule
-        data['results'] = results_map 
-        with open(self.file_path, "w") as f:
-            json.dump(data, f)
-
-    def load_all(self):
-        if not os.path.exists(self.file_path): return {}
-        with open(self.file_path, "r") as f:
-            try:
-                return json.load(f)
-            except:
-                return {}
+        self._write_json(self.calendar_file, schedule)
+        self._write_json(self.results_file, results_map)
 
     def get_predictions(self):
-        return self.load_all().get('predictions', {})
+        return self._read_json(self.predictions_file)
 
     def get_schedule(self):
-        return self.load_all().get('schedule', [])
+        return self._read_json(self.calendar_file)
 
     def get_results_map(self):
-        return self.load_all().get('results', {})
+        return self._read_json(self.results_file)
         
     def get_users(self):
-        return self.load_all().get('users', [])
+        return self._read_json(self.users_file) if isinstance(self._read_json(self.users_file), list) else []

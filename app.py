@@ -7,10 +7,10 @@ st.set_page_config(page_title="F1 Fantasy League", layout="wide")
 st.title("🏎️ F1 Fantasy League")
 
 client = RaceClient()
-dm = DataManager()
+dm = DataManager(data_folder="data")
 engine = ScoringEngine()
 
-# PERSISTENCE SYNC
+# DATA SYNC
 current_schedule = dm.get_schedule()
 if not current_schedule:
     current_schedule = client.get_full_2026_calendar()
@@ -27,17 +27,14 @@ with tab1:
     st.header("Current Standings")
     all_predictions = dm.get_predictions()
     results_map = dm.get_results_map()
-    
     leaderboard = {}
-    all_users = dm.get_users() # Use the persistent user list
+    all_users = dm.get_users()
     
     for race in current_schedule:
         race_name = race['name']
-        # Force a result lookup if missing but finished
         results = results_map.get(race['round'], [])
         if race['status'] == 'Finished' and not results:
             results = client.get_results(race['round'])
-        
         for user in all_users:
             pred_data = all_predictions.get(race_name, {}).get(user)
             if pred_data:
@@ -64,13 +61,12 @@ with tab2:
     if current_schedule:
         users = dm.get_users()
         if not users:
-            st.warning("No users found. Please add users in the 'User Management' tab first.")
+            st.warning("No users found. Please add users in 'User Management'.")
         else:
             selected_user = st.selectbox("Select User", users)
             selected_race = st.selectbox("Race", [r['name'] for r in current_schedule])
             picks = st.text_input("Top 5 (comma separated, e.g., VER, NOR, HAM, LEC, PER)")
             is_late = st.checkbox("Submitted after qualifying?")
-            
             if st.button("Save Prediction"):
                 if picks:
                     pick_list = [p.strip().upper() for p in picks.split(",")]
@@ -84,11 +80,9 @@ with tab3:
         full_info = []
         results_map = dm.get_results_map()
         for race in current_schedule:
-            # Ensure we actually have the results for the table
             res = results_map.get(race['round'], [])
             if race['status'] == 'Finished' and not res:
                 res = client.get_results(race['round'])
-            
             res_str = ", ".join(res) if res else "N/A"
             full_info.append({**race, "Top 5 Official Results": res_str})
         st.table(full_info)
@@ -103,4 +97,10 @@ with tab4:
             st.rerun()
     
     st.write("### Registered Users")
-    st.write(dm.get_users())
+    users = dm.get_users()
+    for u in users:
+        col1, col2 = st.columns([4, 1])
+        col1.write(u)
+        if col2.button(f"Delete", key=f"del_{u}"):
+            dm.remove_user(u)
+            st.rerun()
