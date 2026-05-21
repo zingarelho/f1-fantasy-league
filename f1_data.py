@@ -143,4 +143,25 @@ class DataManager:
 
     def get_results_map(self):
         res = self._read_json(self.results_file)
-        return res if isinstance(res, dict) else {}
+        if not isinstance(res, dict):
+            return {}
+        # Backward compatibility: convert old flat-string format
+        # ["VER", "NOR", ...] -> [{"id": "VER", "points": 0}, ...]
+        return {
+            k: self._normalize_results(v)
+            for k, v in res.items()
+        }
+
+    @staticmethod
+    def _normalize_results(results):
+        """Ensure stored results are in the canonical [{'id', 'points'}, …]
+        format.  Handles migration from the old flat-string format."""
+        if not isinstance(results, list):
+            return []
+        if not results:
+            return results
+        # Already in canonical format?
+        if isinstance(results[0], dict):
+            return results
+        # Old flat-string format — wrap with placeholder points
+        return [{"id": d, "points": 0} for d in results]
