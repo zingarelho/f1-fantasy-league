@@ -21,7 +21,7 @@ class RaceClient:
     offline or when the API is unavailable.
     """
 
-    BASE_URL = "http://ergast.com/api/f1"
+    BASE_URL = "https://api.jolpi.ca/ergast/f1"
 
     def get_full_2026_calendar(self):
         """Return the 2026 race calendar as a list of dicts.
