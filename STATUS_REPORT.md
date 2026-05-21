@@ -1,22 +1,28 @@
 # 📋 Project Status Report: F1 Fantasy League
 
-## ✅ Completed (What is Done)
-- **Core Engine:** Implemented `ScoringEngine` with exact-position and general-pick point logic.
-- **Data Layer:** Implemented `DataManager` with JSON-based local persistence.
-- **Client Interface:** Basic `RaceClient` structure for schedule and results retrieval.
-- **Frontend UI:** Streamlit application with tabs for Leaderboard, Input, and Info.
-- **Documentation:** 
-    - `README.md` (Installation and Rules).
-    - `ARCHITECTURE.md` (Component design and flow).
+## ✅ Completed
 
-## ⚠️ Missing / Remaining (What is Left to Do)
-- **Leaderboard Logic:** The `app.py` has the UI tab for the leaderboard, but the actual point aggregation logic (looping through all users and all races) is not yet implemented.
-- **Real API Integration:** `RaceClient` is currently using mocked data. It needs to be connected to a real F1 API (e.g., Ergast or OpenF1).
-- **Input Validation:** The prediction input currently accepts a comma-separated string without validating if the driver codes are correct (e.g., verifying "VER" is a valid driver).
-- **Auth/User Management:** Currently relies on a simple "Your Name" text input. Needs a more robust way to handle unique users.
-- **Visual Polish:** The UI is functional but basic; needs CSS/Styling to match an F1 theme.
+- **Core Engine:** Implemented `ScoringEngine` with real F1 points (25/18/15/12/10), exact-position and general-pick scoring, and a flat 50% late/missing penalty (non-compounding).
+- **Data Layer:** Implemented `DataManager` with JSON-based local persistence for users, predictions, calendar, and results. Includes a direction-safe `get_last_valid_picks()` helper for carry-over.
+- **Client Interface:** `RaceClient` with correct Ergast API access path (`MRData.RaceTable.Races`) and hardcoded fallback data when the API is unreachable.
+- **Frontend UI:** Streamlit application with five tabs (Leaderboard, User Details, Input Predictions, Race Info, User Management). All scoring logic unified through the `_calculate_user_pts()` helper to avoid duplication.
+- **Documentation:**
+  - `README.md` — Installation and basic usage.
+  - `ARCHITECTURE.md` — Component design, data schemas, and scoring algorithm.
+  - `devlog.md` — Development history.
+  - `STATUS_REPORT.md` — This file.
+
+## ⚠️ Remaining / Known Gaps
+
+- **Real API Integration:** `RaceClient` queries the deprecated Ergast API and falls back to hardcoded data. Needs migration to a maintained F1 data source (e.g., OpenF1).
+- **Input Validation:** The prediction input accepts comma-separated text without validating driver codes against a known list of F1 drivers.
+- **Auth / User Management:** Currently relies on a simple text input for usernames. No authentication or session management.
+- **Visual Polish:** The UI is functional but basic. Needs CSS / theming to match an F1 aesthetic.
+- **No Unit Tests:** `ScoringEngine` and `DataManager` are good candidates for pytest tests, especially around edge cases (empty predictions, all-missed season, etc.).
 
 ## 🚀 Next Steps
-1. Implement the `aggregate_season_points()` function to power the Leaderboard.
-2. Integrate a real F1 data source in `client.py`.
-3. Add validation for driver picks.
+
+1. Migrate to a maintained F1 data API (OpenF1 or similar).
+2. Add driver code validation against an up-to-date driver list.
+3. Write unit tests for `ScoringEngine` and `DataManager`.
+4. Add reasonable visual theming / styling.

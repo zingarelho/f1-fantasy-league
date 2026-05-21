@@ -5,37 +5,51 @@ The application is a lightweight prediction engine that decouples the user inter
 
 ## 2. Component Diagram
 ```text
-[ Streamlit UI ] <---> [ DataManager ] <---> [ predictions.json ]
-      ^                      ^
-      |                      |
-      v                      v
-[ RaceClient ] <---> [ F1 External APIs / Mocks ]
+[ Streamlit UI ] <───> [ DataManager ] <───> [ predictions.json     ]
+      ^                       ^                 [ users.json          ]
+      |                       |                 [ calendar.json       ]
+      v                       v                 [ results.json        ]
+[ RaceClient ] <───> [ F1 API / Hardcoded Fallback ]
       |
       v
-[ ScoringEngine ] (Pure Logic)
+[ ScoringEngine ]  (Pure logic, stateless)
 ```
 
 ## 3. Core Modules
+
 ### `app.py` (The Orchestrator)
 - Handles the Streamlit session and page state.
-- coordinates between the `RaceClient`, `DataManager`, and `ScoringEngine`.
-- Manages the three primary views: Leaderboard, Input, and Info.
+- Coordinates between `RaceClient`, `DataManager`, and `ScoringEngine`.
+- Manages five tabbed views: Leaderboard, User Details, Input Predictions, Race Info, User Management.
+- Uses `_calculate_user_pts()` helper to avoid duplicated scoring logic across tabs.
 
-### `engine.py` (The Scoring Domain)
+### `f1_engine.py` (The Scoring Domain)
 - **Single Responsibility:** Calculates points for a single race.
-- **Logic:** Implements a reward-and-penalty system.
+- **Logic:** Implements a reward-and-penalty system using real F1 points.
 - **Stateless:** Does not store data; only processes input vs. results.
+- **Scoring:**
+  - Predicted position matches actual → full F1 points (25/18/15/12/10)
+  - Predicted driver is in actual Top 5 but wrong position → half points
+  - Late or missing submission → total ×0.5 (non-compounding)
 
-### `data.py` (The Persistence Layer)
-- Manages reading/writing to `predictions.json`.
-- Schema: `{ "Race Name": { "User": { "picks": [], "is_late": bool } } }`
+### `f1_data.py` (The Persistence Layer)
+- Manages reading/writing JSON files in the `data/` directory.
+- **Schema — predictions.json:**
+  ```json
+  { "Race Name": { "User": { "picks": ["VER", …], "is_late": bool } } }
+  ```
+- **Schema — users.json:** `["User1", "User2", …]`
+- **Schema — calendar.json:** `[{round, name, date, status}, …]`
+- **Schema — results.json:** `{"round_number": [{"id": "VER", "points": 25}, …], …}`
+- `get_last_valid_picks()` — finds the most recent prediction from a **prior** race when a user misses one (direction-safe: never pulls forward from a future race).
 
-### `client.py` (The Integration Layer)
+### `f1_client.py` (The Integration Layer)
 - Abstracted interface for fetching race schedules and results.
-- Currently implements mocked data for development and testing.
+- Queries the (deprecated) Ergast API; falls back to hardcoded data when the API is unreachable.
+- Returns structured data matching the ScoringEngine's expected format (`[{"id": …, "points": …}]`).
 
-## 4. Scoring Algorithm
-For each predicted driver in the Top 5:
-- If `driver == official_results[pos]`: **+10 pts**
-- If `driver` is in `official_results` but `pos` is wrong: **+5 pts**
-- Final total is multiplied by **0.5** if the submission was marked as `is_late`.
+## 4. Scoring Algorithm — Detail
+For each of the 5 predicted drivers (by position):
+- If `predicted_driver == actual_driver_at_position[pos]`: **+real F1 points** (25, 18, 15, 12, 10)
+- If `predicted_driver` is in the actual Top 5 but at a different position: **+half those points**
+- If submission was `is_late` or the user `is_missing`: final total **×0.5** (flat, non-compounding)
