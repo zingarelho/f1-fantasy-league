@@ -190,9 +190,17 @@ with tab4:
             res = results_map.get(str(race["round"]), [])
             if res and isinstance(res, list):
                 res_str = ", ".join(r["id"] for r in res)
+                status = "Finished"
             else:
                 res_str = "N/A"
-            full_info.append({**race, "Top 5 Official Results": res_str})
+                status = "Scheduled"
+            full_info.append({
+                "round": race["round"],
+                "name": race["name"],
+                "date": race["date"],
+                "status": status,
+                "Top 5 Official Results": res_str,
+            })
         st.table(full_info)
 
         st.write("---")

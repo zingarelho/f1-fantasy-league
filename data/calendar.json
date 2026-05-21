@@ -1,0 +1,134 @@
+[
+    {
+        "round": 1,
+        "name": "Australian Grand Prix",
+        "date": "2026-03-08",
+        "status": "Scheduled"
+    },
+    {
+        "round": 2,
+        "name": "Chinese Grand Prix",
+        "date": "2026-03-15",
+        "status": "Scheduled"
+    },
+    {
+        "round": 3,
+        "name": "Japanese Grand Prix",
+        "date": "2026-03-29",
+        "status": "Scheduled"
+    },
+    {
+        "round": 4,
+        "name": "Miami Grand Prix",
+        "date": "2026-05-03",
+        "status": "Scheduled"
+    },
+    {
+        "round": 5,
+        "name": "Canadian Grand Prix",
+        "date": "2026-05-24",
+        "status": "Scheduled"
+    },
+    {
+        "round": 6,
+        "name": "Monaco Grand Prix",
+        "date": "2026-06-07",
+        "status": "Scheduled"
+    },
+    {
+        "round": 7,
+        "name": "Barcelona Grand Prix",
+        "date": "2026-06-14",
+        "status": "Scheduled"
+    },
+    {
+        "round": 8,
+        "name": "Austrian Grand Prix",
+        "date": "2026-06-28",
+        "status": "Scheduled"
+    },
+    {
+        "round": 9,
+        "name": "British Grand Prix",
+        "date": "2026-07-05",
+        "status": "Scheduled"
+    },
+    {
+        "round": 10,
+        "name": "Belgian Grand Prix",
+        "date": "2026-07-19",
+        "status": "Scheduled"
+    },
+    {
+        "round": 11,
+        "name": "Hungarian Grand Prix",
+        "date": "2026-07-26",
+        "status": "Scheduled"
+    },
+    {
+        "round": 12,
+        "name": "Dutch Grand Prix",
+        "date": "2026-08-23",
+        "status": "Scheduled"
+    },
+    {
+        "round": 13,
+        "name": "Italian Grand Prix",
+        "date": "2026-09-06",
+        "status": "Scheduled"
+    },
+    {
+        "round": 14,
+        "name": "Spanish Grand Prix",
+        "date": "2026-09-13",
+        "status": "Scheduled"
+    },
+    {
+        "round": 15,
+        "name": "Azerbaijan Grand Prix",
+        "date": "2026-09-26",
+        "status": "Scheduled"
+    },
+    {
+        "round": 16,
+        "name": "Singapore Grand Prix",
+        "date": "2026-10-11",
+        "status": "Scheduled"
+    },
+    {
+        "round": 17,
+        "name": "United States Grand Prix",
+        "date": "2026-10-25",
+        "status": "Scheduled"
+    },
+    {
+        "round": 18,
+        "name": "Mexico City Grand Prix",
+        "date": "2026-11-01",
+        "status": "Scheduled"
+    },
+    {
+        "round": 19,
+        "name": "Brazilian Grand Prix",
+        "date": "2026-11-08",
+        "status": "Scheduled"
+    },
+    {
+        "round": 20,
+        "name": "Las Vegas Grand Prix",
+        "date": "2026-11-22",
+        "status": "Scheduled"
+    },
+    {
+        "round": 21,
+        "name": "Qatar Grand Prix",
+        "date": "2026-11-29",
+        "status": "Scheduled"
+    },
+    {
+        "round": 22,
+        "name": "Abu Dhabi Grand Prix",
+        "date": "2026-12-06",
+        "status": "Scheduled"
+    }
+]

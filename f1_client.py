@@ -83,15 +83,18 @@ class RaceClient:
         Returns a list of dicts:
             [{"id": "VER", "points": 25}, {"id": "NOR", "points": 18}, …]
 
-        Falls back to hardcoded placeholder data when the API is unreachable.
+        Falls back to hardcoded placeholder data only when the API is
+        completely unreachable (connection error / timeout).
         """
         try:
             headers = {"User-Agent": "HermesF1Fantasy/1.0"}
             resp = requests.get(
-                f"{self.BASE_URL}/{season}/results.json?round={round_num}",
+                f"{self.BASE_URL}/{season}/{round_num}/results.json",
                 headers=headers,
                 timeout=10,
             )
+            if resp.status_code != 200:
+                return []
             data = resp.json()
             races = (
                 data.get("MRData", {})
@@ -111,8 +114,9 @@ class RaceClient:
                 }
                 for r in raw
             ]
+        except requests.ConnectionError:
+            # Network unreachable — use fallback
+            return list(_FALLBACK_RESULTS)
         except Exception as e:
             print(f"[RaceClient] Results API error (round {round_num}): {e}")
-
-        # API unreachable — use fallback
-        return list(_FALLBACK_RESULTS)
+            return []

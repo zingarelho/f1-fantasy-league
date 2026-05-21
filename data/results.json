@@ -1,0 +1,90 @@
+{
+    "1": [
+        {
+            "id": "RUS",
+            "points": 25
+        },
+        {
+            "id": "ANT",
+            "points": 18
+        },
+        {
+            "id": "LEC",
+            "points": 15
+        },
+        {
+            "id": "HAM",
+            "points": 12
+        },
+        {
+            "id": "NOR",
+            "points": 10
+        }
+    ],
+    "2": [
+        {
+            "id": "ANT",
+            "points": 25
+        },
+        {
+            "id": "RUS",
+            "points": 18
+        },
+        {
+            "id": "HAM",
+            "points": 15
+        },
+        {
+            "id": "LEC",
+            "points": 12
+        },
+        {
+            "id": "BEA",
+            "points": 10
+        }
+    ],
+    "3": [
+        {
+            "id": "ANT",
+            "points": 25
+        },
+        {
+            "id": "PIA",
+            "points": 18
+        },
+        {
+            "id": "LEC",
+            "points": 15
+        },
+        {
+            "id": "RUS",
+            "points": 12
+        },
+        {
+            "id": "NOR",
+            "points": 10
+        }
+    ],
+    "4": [
+        {
+            "id": "ANT",
+            "points": 25
+        },
+        {
+            "id": "NOR",
+            "points": 18
+        },
+        {
+            "id": "PIA",
+            "points": 15
+        },
+        {
+            "id": "RUS",
+            "points": 12
+        },
+        {
+            "id": "VER",
+            "points": 10
+        }
+    ]
+}
