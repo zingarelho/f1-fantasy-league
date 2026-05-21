@@ -1,8 +1,8 @@
 
 import streamlit as st
-from engine import ScoringEngine
-from client import RaceClient
-from data import DataManager
+from f1_engine import ScoringEngine
+from f1_client import RaceClient
+from f1_data import DataManager
 
 st.set_page_config(page_title="F1 Fantasy League", layout="wide")
 st.title("🏎️ F1 Prediction League")
