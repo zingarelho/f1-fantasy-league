@@ -168,5 +168,9 @@ with tab5:
             st.write(u)
         with col2:
             if st.button(f"Delete", key=f"del_{u}"):
-                dm.remove_user(u)
+                try:
+                    dm.remove_user(u)
+                    st.success(f"User {u} removed!")
+                except Exception as e:
+                    st.error(f"Failed to remove user {u}: {e}")
                 st.rerun()
