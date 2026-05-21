@@ -20,8 +20,7 @@ def refresh_all_data():
     schedule = client.get_full_2026_calendar()
     results_map = {}
     for race in schedule:
-        if race["status"] == "Finished":
-            results_map[race["round"]] = client.get_results(race["round"])
+        results_map[race["round"]] = client.get_results(race["round"])
     dm.save_race_data(schedule, results_map)
     st.success("Global data refresh complete!")
 

@@ -102,7 +102,7 @@ class RaceClient:
                 raw = results[0].get("Results", [])[:5]
                 return [
                     {
-                        "id": r["Driver"]["driverId"].upper(),
+                        "id": r["Driver"]["code"],  # 3-letter code (VER, NOR, …)
                         "points": int(r["points"]),
                     }
                     for r in raw
