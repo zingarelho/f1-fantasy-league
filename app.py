@@ -173,7 +173,7 @@ with tab2:
         all_predictions = dm.get_predictions()
         results_map = dm.get_results_map()
 
-        st.markdown(_CARD_CSS, unsafe_allow_html=True)
+        st.html(_CARD_CSS)
 
         for race in current_schedule:
             race_name = race["name"]
@@ -260,7 +260,7 @@ with tab2:
                 card_html += '<p style="margin:8px 0 0 0;color:#999;">No prediction yet</p>'
 
             card_html += "</div>"
-            st.markdown(card_html, unsafe_allow_html=True)
+            st.html(card_html)
 
 # ---------------------------------------------------------------------------
 # TAB 3 — Submit Prediction
@@ -312,7 +312,7 @@ with tab4:
             st.rerun()
 
         results_map = dm.get_results_map()
-        st.markdown(_CARD_CSS, unsafe_allow_html=True)
+        st.html(_CARD_CSS)
 
         for race in current_schedule:
             round_num = race["round"]
@@ -348,7 +348,7 @@ with tab4:
                 """
 
             card_html += "</div>"
-            st.markdown(card_html, unsafe_allow_html=True)
+            st.html(card_html)
 
         st.markdown("---")
         st.subheader("Update Specific Race Result")
