@@ -64,18 +64,18 @@ def _calculate_user_pts(user, race, results, schedule, all_preds):
 _CARD_CSS = """
 <style>
 .f1-card {
-    border: 1px solid #e0e0e0;
+    border: 1px solid rgba(128, 128, 128, 0.3);
     border-radius: 12px;
     padding: 18px;
     margin-bottom: 16px;
-    background: #fafafa;
+    background: rgba(128, 128, 128, 0.06);
 }
 .f1-card h4 {
     margin: 0 0 4px 0;
 }
 .f1-card .subtitle {
     margin: 0 0 12px 0;
-    color: #888;
+    opacity: 0.6;
     font-size: 0.9em;
 }
 .f1-driver-table {
@@ -85,16 +85,16 @@ _CARD_CSS = """
 }
 .f1-driver-table th {
     padding: 6px 12px;
-    background: #f0f0f0;
+    background: rgba(128, 128, 128, 0.1);
     font-weight: bold;
     text-align: left;
 }
 .f1-driver-table td {
     padding: 4px 12px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.15);
 }
 .f1-driver-table .pts { text-align: right; }
-.f1-driver-table .detail { font-size: 0.85em; color: #666; }
+.f1-driver-table .detail { font-size: 0.85em; opacity: 0.6; }
 .f1-total-row td {
     padding: 8px 12px;
     text-align: right;
@@ -105,7 +105,7 @@ _CARD_CSS = """
 .f1-penalty-row td {
     padding: 4px 12px;
     text-align: right;
-    color: #d40;
+    color: #e04040;
     font-weight: bold;
     border-bottom: none;
 }
@@ -238,9 +238,9 @@ with tab2:
 
             elif pred_data and not has_results:
                 picks = pred_data["picks"]
-                card_html += f'<p style="margin:8px 0 0 0;color:#999;">Picks: <b>{", ".join(picks)}</b> — race not yet run</p>'
+                card_html += '<p style="margin:8px 0 0 0;opacity:0.6;">Picks: <b>' + ', '.join(picks) + '</b> — race not yet run</p>'
             else:
-                card_html += '<p style="margin:8px 0 0 0;color:#999;">No prediction submitted</p>'
+                card_html += '<p style="margin:8px 0 0 0;opacity:0.6;">No prediction submitted</p>'
 
             card_html += "</div>"
             st.html(card_html)
