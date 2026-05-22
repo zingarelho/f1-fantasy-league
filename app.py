@@ -123,7 +123,7 @@ if not current_schedule:
     current_schedule = dm.get_schedule()
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "Leaderboard", "Predictions", "Input Predictions", "Race Info",
+    "Leaderboard", "Results", "Predictions", "Race Info",
     "User Management",
 ])
 
@@ -158,11 +158,11 @@ with tab1:
         st.write("No results to display yet!")
 
 # ---------------------------------------------------------------------------
-# TAB 2 — Predictions (card-per-race with per-driver points)
+# TAB 2 — Results (card-per-race, explicit predictions only)
 # ---------------------------------------------------------------------------
 
 with tab2:
-    st.header("Predictions")
+    st.header("Results")
     users = dm.get_users()
     if not users:
         st.write("No users registered.")
@@ -185,40 +185,29 @@ with tab2:
             status_icon = "✅" if has_results else "📅"
             status_text = "Finished" if has_results else "Scheduled"
 
-            # Determine prediction source
+            # Only show explicit predictions — no carry-forward in this tab
             pred_data = all_predictions.get(race_name, {}).get(selected_user)
-
-            if pred_data:
-                picks = pred_data["picks"]
-                is_late = pred_data.get("is_late", False)
-                is_missing = False
-                source_note = ""
-                late_badge = " ⏰ Late" if is_late else ""
-            else:
-                last_picks = dm.get_last_valid_picks(
-                    selected_user, race_name, current_schedule
-                )
-                if last_picks:
-                    picks = last_picks
-                    is_late = False
-                    is_missing = True
-                    source_note = "⏩ Carried forward from a prior race"
-                    late_badge = ""
-                else:
-                    picks = None
-                    source_note = ""
-                    late_badge = ""
 
             # --- Card ---
             card_html = f"""
             <div class="f1-card">
                 <h4>Round {round_num} — {race_name}</h4>
+                <div class="subtitle">{date} · {status_icon} {status_text}</div>
+            """
+
+            if pred_data and has_results:
+                picks = pred_data["picks"]
+                is_late = pred_data.get("is_late", False)
+                late_badge = " ⏰ Late" if is_late else ""
+                # Rebuild subtitle with late badge
+                card_html = f"""
+            <div class="f1-card">
+                <h4>Round {round_num} — {race_name}</h4>
                 <div class="subtitle">{date} · {status_icon} {status_text}{late_badge}</div>
             """
 
-            if picks and has_results:
                 breakdown, subtotal, final_total = engine.calculate_driver_breakdown(
-                    picks, res, is_late=is_late, is_missing=is_missing,
+                    picks, res, is_late=is_late, is_missing=False,
                 )
 
                 rows = ""
@@ -235,10 +224,6 @@ with tab2:
                     penalty = f"""<tr class="f1-penalty-row">
                         <td colspan="4">⏰ Late penalty (-50%): {subtotal:.1f} → {final_total:.1f}</td>
                     </tr>"""
-                elif is_missing:
-                    penalty = f"""<tr class="f1-penalty-row">
-                        <td colspan="4">⏩ Carry-forward penalty (-50%): {subtotal:.1f} → {final_total:.1f}</td>
-                    </tr>"""
 
                 card_html += f"""
                 <table class="f1-driver-table">
@@ -251,23 +236,21 @@ with tab2:
                 </table>
                 """
 
-                if source_note:
-                    card_html += f'<p style="margin:8px 0 0 0;font-size:0.85em;color:#999;">{source_note}</p>'
-
-            elif picks and not has_results:
+            elif pred_data and not has_results:
+                picks = pred_data["picks"]
                 card_html += f'<p style="margin:8px 0 0 0;color:#999;">Picks: <b>{", ".join(picks)}</b> — race not yet run</p>'
             else:
-                card_html += '<p style="margin:8px 0 0 0;color:#999;">No prediction yet</p>'
+                card_html += '<p style="margin:8px 0 0 0;color:#999;">No prediction submitted</p>'
 
             card_html += "</div>"
             st.html(card_html)
 
 # ---------------------------------------------------------------------------
-# TAB 3 — Submit Prediction
+# TAB 3 — Submit Predictions
 # ---------------------------------------------------------------------------
 
 with tab3:
-    st.header("Submit Prediction")
+    st.header("Predictions")
     if current_schedule:
         users = dm.get_users()
         if not users:
@@ -290,8 +273,7 @@ with tab3:
                     dm.save_prediction(
                         selected_user, selected_race, pick_list, is_late,
                     )
-                    st.success(f"Prediction saved for {selected_user}!")
-                    st.rerun()
+                    st.success(f"Prediction recorded for {selected_user} — Round {selected_race}")
 
             st.write("---")
             st.write("Remove existing prediction")
